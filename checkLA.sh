@@ -12,7 +12,7 @@ fi
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
-LA=$(w | head -1 | awk '{ print $10 }' | sed 's/,//')
+LA=$(w | head -1 | sed 's/^.*load average: \(.*$\)/\1/' | awk '{ print $1 }' | sed 's/,//')
 
 [[ -f ${FILE} ]] && THRESHOLD=`head -1 ${FILE}` || THRESHOLD=$1
 [ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)

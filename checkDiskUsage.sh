@@ -17,10 +17,11 @@ exec 1> >(logger -s -t $(basename $0)) 2>&1
 [[ -f ${FILE} ]] && THRESHOLD=`head -1 ${FILE}` || THRESHOLD=$1
 [ $# -gt 2 ]  && hostname=$3 || hostname=$(hostname)
 
-[[ -z "$(echo $2 | grep ',')" ]] && arg2=$(echo "$2" | tr -s ' ' | sed 's/ /|/g') || arg2=$(echo "$2" | tr -d ' ' | sed 's/,/|/g')
+[[ -z "$(echo $2 | grep ',')" ]] && arg2="$(echo "$2" | tr -s ' ' | sed 's/ / |/g') " || arg2="$(echo "$2" | tr -d ' ' | sed 's/,/ |/g') "
 IFS='|'
 read -a fileSystems <<< "${arg2}"
 regex=$(echo "$arg2" | sed 's/\//\\\//g')
+#echo "${arg2} ${regex} ${fileSystems[@]}"
 
 fsUsage=$(df -h | grep -E "${regex}")
 while read -r line; do
