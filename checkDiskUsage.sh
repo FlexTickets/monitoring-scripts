@@ -3,6 +3,7 @@
 set -euo pipefail
 
 FILE=/tmp/lastDiskUsage.txt
+scriptDir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 arg2=""
 counter=0
 
@@ -29,7 +30,7 @@ while read -r line; do
 	USAGE=$[100-$(echo ${line} | awk '{print $5}' | tr -d '%')]
 	if [ ${THRESHOLD} -gt ${USAGE} ]; then
 		echo "Too low disk space: ${line}"
-		/home/fkolodiazhnyi/bin/send2bot.sh "${hostname} Too low disk space: ${line}"
+		${scriptDir}/send2bot.sh "${hostname} Too low disk space: ${line}"
 	fi
 done <<< "${fsUsage}"
 

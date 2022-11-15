@@ -3,6 +3,7 @@
 set -euo pipefail
 
 FILE=/tmp/lastCpuUsage.txt
+scriptDir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
 if [ $# -lt 1 ]; then
 	echo "Usage: $0 <CPU usage % threshold> [<hostname for messages>]"
@@ -18,6 +19,6 @@ USAGE=$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]
 [ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
 
 # echo "${THRESHOLD} ${USAGE}"
-[ ${USAGE} -gt ${THRESHOLD} ] && /home/fkolodiazhnyi/bin/send2bot.sh "${hostname} CPU Usage ${USAGE}"
+[ ${USAGE} -gt ${THRESHOLD} ] && ${scriptDir}/send2bot.sh "${hostname} CPU Usage ${USAGE}"
 
 [ ${USAGE} -gt $1 ] && echo ${USAGE} > ${FILE} || echo $1 > ${FILE}
