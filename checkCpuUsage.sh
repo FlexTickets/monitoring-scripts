@@ -19,6 +19,6 @@ USAGE=$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]
 [ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
 
 # echo "${THRESHOLD} ${USAGE}"
-[ ${USAGE} -gt ${THRESHOLD} ] && ${scriptDir}/send2bot.sh "${hostname} CPU Usage ${USAGE}"
+[ ${USAGE} -gt ${THRESHOLD} ] && ${scriptDir}/send2bot.sh "${hostname} CPU Usage ${USAGE}.     $(ps aux | sort -nrk 3,3 | head -n 1)"
 
 [ ${USAGE} -gt $1 ] && echo ${USAGE} > ${FILE} || echo $1 > ${FILE}
