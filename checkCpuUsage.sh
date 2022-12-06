@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# set -x
+#set -x
 set -euo pipefail
 
 FILE=/tmp/lastCpuUsage.txt
@@ -13,12 +13,37 @@ fi
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
-USAGE=$[100-$(vmstat 1 2|tail -1|awk '{print $15}')]
+USAGE=$(vmstat 5 1 | tail -1 | awk '{print $13+$14}')
 
-[[ -f ${FILE} ]] && THRESHOLD=`head -1 ${FILE}` || THRESHOLD=$1
+if [[ -f ${FILE} ]]; then
+	THRESHOLD=$(head -1 ${FILE})
+	IFS=' '
+	read -a strarr <<< "${THRESHOLD}"
+	if [ ${#strarr[*]} -eq 2 ]; then
+		lastUsage=${strarr[0]}
+		ALARM=${strarr[1]}
+	elif [ ${#strarr[*]} -eq 1 ]; then
+		lastUsage=${strarr[0]}
+		ALARM=0
+	else
+		lastUsage=$1
+		ALARM=0
+	fi
+else
+	lastUsage=$1
+	ALARM=0
+fi
+THRESHOLD=$1
 [ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
 
-# echo "${THRESHOLD} ${USAGE}"
-[ ${USAGE} -gt ${THRESHOLD} ] && ${scriptDir}/send2bot.sh "${hostname} CPU Usage ${USAGE}%.     $(ps aux | sort -nrk 3,3 | head -n 1)"
+#echo "${THRESHOLD} ${lastUsage} ${ALARM} ${USAGE}"
+if [[ ${USAGE} -gt ${THRESHOLD} && ${lastUsage} -gt ${THRESHOLD} && ${ALARM} -eq 0 ]]; then
+	${scriptDir}/send2bot.sh "${hostname} High CPU Usage ALERT (${USAGE}%) $(ps aux | sort -nrk 3,3 | head -n 1)"
+	ALARM=1
+fi
+if [[ ${USAGE} -lt ${THRESHOLD} && ${ALARM} -eq 1 ]]; then
+	${scriptDir}/send2bot.sh "${hostname} High CPU Usage OK (${USAGE}%)"
+	ALARM=0
+fi
 
-[ ${USAGE} -gt $1 ] && echo ${USAGE} > ${FILE} || echo $1 > ${FILE}
+echo "${USAGE} ${ALARM}" > ${FILE}
