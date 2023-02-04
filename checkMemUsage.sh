@@ -37,11 +37,11 @@ THRESHOLD=$1
 [ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
 
 #echo "${THRESHOLD} ${lastUsage} ${ALARM} ${USAGE}"
-if [[ ${USAGE} -lt ${THRESHOLD} && ${lastUsage} -lt ${THRESHOLD} && ${ALARM} -eq 0 ]]; then
+if (( $(echo "${USAGE} <= ${THRESHOLD}" | bc -l) && $(echo "${lastUsage} <= ${THRESHOLD}" | bc -l) && $(echo "${ALARM} == 0" | bc -l) )); then
 	${scriptDir}/send2bot.sh "${hostname} High RAM Usage ALERT (${USAGE}%)"
 	ALARM=1
 fi
-if [[ ${USAGE} -gt ${THRESHOLD} && ${ALARM} -eq 1 ]]; then
+if (( $(echo "${USAGE} > ${THRESHOLD}" | bc -l) && $(echo "${ALARM} == 1" | bc -l) )); then
 	${scriptDir}/send2bot.sh "${hostname} High RAM Usage OK (${USAGE}%)"
 	ALARM=0
 fi
