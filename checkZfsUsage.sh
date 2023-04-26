@@ -24,7 +24,7 @@ read -a fileSystems <<< "${arg2}"
 regex=$(echo "$arg2" | sed 's/\//\\\//g')
 #echo "${arg2} ${regex} ${fileSystems[@]}"
 
-fsUsage=$(zfs list -p | grep -E "${regex}")
+fsUsage=$(/usr/sbin/zfs list -p | grep -E "${regex}")
 while read -r line; do
 	counter=$[${counter} + 1]
 	USAGE=$(echo ${line} | awk '{print ($3 * 100)/($2 + $3)}')
