@@ -38,7 +38,7 @@ THRESHOLD=$1
 
 #echo "${THRESHOLD} ${lastUsage} ${ALARM} ${USAGE}"
 if (( $(echo "${USAGE} <= ${THRESHOLD}" | bc -l) && $(echo "${lastUsage} <= ${THRESHOLD}" | bc -l) && $(echo "${ALARM} == 0" | bc -l) )); then
-	${scriptDir}/send2bot.sh "${hostname} High RAM Usage ALERT (${USAGE}%)"
+	${scriptDir}/send2bot.sh "${hostname} High RAM Usage ALERT (${USAGE}%) $(ps aux --sort -rss | head -2 | tail -1)"
 	ALARM=1
 fi
 if (( $(echo "${USAGE} > ${THRESHOLD}" | bc -l) && $(echo "${ALARM} == 1" | bc -l) )); then
