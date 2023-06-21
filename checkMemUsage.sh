@@ -13,7 +13,7 @@ fi
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
-USAGE=$(free | grep -E "^Mem:" | awk '{print 100*$4/$2}')
+USAGE=$(free | grep -E "^Mem:" | awk '{print 100*$7/$2}')
 
 if [[ -f ${FILE} ]]; then
 	THRESHOLD=$(head -1 ${FILE})
