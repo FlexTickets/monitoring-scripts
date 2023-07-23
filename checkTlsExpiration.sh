@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-#set -x
-set -euo pipefail
+set -x
+set -uo pipefail
 
 DAYS=30
 scriptDir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
@@ -20,6 +20,11 @@ while true; do
 	# Get certificate expiration date
 	str=$(echo | openssl s_client -showcerts -servername ${domain} -connect ${url} 2>/dev/null | openssl x509 -inform pem -noout -text | sed -n "s/Not After ://p" | xargs)
 	# Check if we don't get certificate
+	if [[ "${str}" == "" ]]; then
+		${scriptDir}/send2bot.sh "Can't get certificate for ${domain} on ${url} ($(openssl s_client -showcerts -servername ${domain} -connect ${url} 2>/dev/null | openssl x509 -inform pem -noout -text 2>&1))"
+		count=$[${count}+1]
+		continue
+	fi
 
 	signalDate=$(date -d "${str} -${DAYS} day" +%s)
 
@@ -29,12 +34,3 @@ while true; do
 
 	count=$[${count}+1]
 done
-exit 0
-
-str=$(echo | openssl s_client -showcerts -servername midot.com -connect git.midot.com:3000 2>/dev/null | openssl x509 -inform pem -noout -text | sed -n "s/Not After ://p" | xargs)
-signalDate=$(date -d "${str} -1 month" +%s)
-#echo "${str} - ${signalDate}"
-
-[ ${signalDate} -gt $(date +%s) ] && exit 0
-
-echo "Certificate near expiration date"
