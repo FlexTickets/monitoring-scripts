@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+#set -x
 set -uo pipefail
 
 DAYS=30
