@@ -38,11 +38,11 @@ THRESHOLD=$1
 
 #echo "${THRESHOLD} ${lastUsage} ${ALARM} ${USAGE}"
 if (( $(echo "${USAGE} > ${THRESHOLD}" | bc -l) && $(echo "${lastUsage} > ${THRESHOLD}" | bc -l) && ${ALARM} == 0 )); then
-        ${scriptDir}/send2bot.sh "${hostname} High LA ALERT (${USAGE}) $(ps aux | sort -nrk 3,3 | head -n 1)"
+        ${scriptDir}/send2bot.sh "${hostname} High CPU ALERT (${USAGE}) $(ps aux | sort -nrk 3,3 | head -n 1)"
         ALARM=1
 fi
 if (( $(echo "${USAGE} <= ${THRESHOLD}" | bc -l) && ${ALARM} == 1 )); then
-        ${scriptDir}/send2bot.sh "${hostname} High LA OK (${USAGE})"
+        ${scriptDir}/send2bot.sh "${hostname} High CPU OK (${USAGE})"
         ALARM=0
 fi
 
