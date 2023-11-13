@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -x
 set -euo pipefail
 
 FILE=/tmp/lastCpuUsage.txt
@@ -13,7 +13,7 @@ fi
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
-USAGE=$(top -n 1 | grep "Cpu(s):" | awk '{print $2+$4}')
+USAGE=$(top -n 1 | grep "Cpu(s):" | awk '{print 100-$8}')
 
 if [[ -f ${FILE} ]]; then
 	THRESHOLD=$(head -1 ${FILE})
