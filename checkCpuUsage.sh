@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -x
+#set -x
 set -euo pipefail
 
 FILE=/tmp/lastCpuUsage.txt
