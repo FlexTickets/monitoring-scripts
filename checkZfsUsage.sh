@@ -12,11 +12,19 @@ if [ $# -lt 2 ]; then
 	exit 0
 fi
 
+[ $# -gt 2 ]  && hostname=$3 || hostname=$(hostname)
+
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
+function my_trap() {
+        local lineno=$1
+        local cmd=$(echo "$2" | tr -d '"')
+        ${scriptDir}/send2bot.sh "$(basename $0): Failed at line ${lineno}: ${cmd}" ${hostname}
+        exit 1
+}
+
 [[ -f ${FILE} ]] && THRESHOLD=`head -1 ${FILE}` || THRESHOLD=$1
-[ $# -gt 2 ]  && hostname=$3 || hostname=$(hostname)
 
 [[ -z "$(echo $2 | grep ',')" ]] && arg2="$(echo "$2" | tr -s ' ' | sed 's/ / |/g') " || arg2="$(echo "$2" | tr -d ' ' | sed 's/,/ |/g') "
 IFS='|'

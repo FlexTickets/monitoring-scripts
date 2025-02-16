@@ -13,6 +13,17 @@ fi
 # Redirect stdout and stderr to syslog
 exec 1> >(logger -s -t $(basename $0)) 2>&1
 
+[ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
+
+function my_trap() {
+        local lineno=$1
+        local cmd=$(echo "$2" | tr -d '"')
+        ${scriptDir}/send2bot.sh "$(basename $0): Failed at line ${lineno}: ${cmd}" ${hostname}
+        exit 1
+}
+
+trap 'my_trap ${LINENO} "${BASH_COMMAND}"' ERR
+
 USAGE=$(free | grep -E "^Mem:" | awk '{print 100*$7/$2}')
 
 if [[ -f ${FILE} ]]; then
@@ -34,7 +45,6 @@ else
 	ALARM=0
 fi
 THRESHOLD=$1
-[ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
 
 #echo "${THRESHOLD} ${lastUsage} ${ALARM} ${USAGE}"
 if (( $(echo "${USAGE} <= ${THRESHOLD}" | bc -l) && $(echo "${lastUsage} <= ${THRESHOLD}" | bc -l) && $(echo "${ALARM} == 0" | bc -l) )); then

@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
 #set -x
-set -uo pipefail
+set -uoe pipefail
 
 DAYS=30
 scriptDir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 source ${scriptDir}/sites.json
+
+[ $# -eq 2 ]  && hostname=$2 || hostname=$(hostname)
+
+function my_trap() {
+        local lineno=$1
+        local cmd=$(echo "$2" | tr -d '"')
+        ${scriptDir}/send2bot.sh "$(basename $0): Failed at line ${lineno}: ${cmd}" ${hostname}
+        exit 1
+}
+
+trap 'my_trap ${LINENO} "${BASH_COMMAND}"' ERR
 
 count=0
 while true; do
